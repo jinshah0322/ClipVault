@@ -2,6 +2,7 @@ import os
 
 # ── File paths ────────────────────────────────────────────────────────────────
 HISTORY_FILE = os.path.expanduser("~/.clipvault_history.json")
+PID_FILE     = os.path.expanduser("~/.local/share/clipvault/clipvault.pid")
 
 # ── Limits ────────────────────────────────────────────────────────────────────
 MAX_HISTORY = 50

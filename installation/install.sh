@@ -43,7 +43,13 @@ echo -e "${GREEN}✓ System packages ready${NC}"
 # PyQt5 is installed via apt above — do NOT install it via pip
 # as the pip wheel breaks the xcb platform plugin on Ubuntu.
 echo -e "${YELLOW}[2/5] Installing Python packages...${NC}"
-pip3 install --quiet --user \
+INSTALL_DIR="$HOME/.local/share/clipvault"
+rm -rf "$INSTALL_DIR"
+mkdir -p "$INSTALL_DIR"
+
+# Create a venv that inherits system PyQt5 (--system-site-packages)
+python3 -m venv --system-site-packages "$INSTALL_DIR/venv"
+"$INSTALL_DIR/venv/bin/pip" install --quiet \
     pynput \
     Pillow
 
@@ -51,11 +57,6 @@ echo -e "${GREEN}✓ Python packages ready${NC}"
 
 # ── Step 3: Install app files ─────────────────────────────────────────────────
 echo -e "${YELLOW}[3/5] Installing ClipVault...${NC}"
-INSTALL_DIR="$HOME/.local/share/clipvault"
-
-# Clean previous install if present
-rm -rf "$INSTALL_DIR"
-mkdir -p "$INSTALL_DIR"
 
 # Copy the modular app package and project metadata
 cp -r "$PROJECT_ROOT/app"            "$INSTALL_DIR/"
@@ -67,9 +68,13 @@ cat > "$HOME/.local/bin/clipvault" << 'LAUNCHER'
 #!/bin/bash
 export DISPLAY="${DISPLAY:-:0}"
 export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}"
-python3 "$HOME/.local/share/clipvault/app/main.py" "$@"
+"$HOME/.local/share/clipvault/venv/bin/python3" "$HOME/.local/share/clipvault/app/main.py" "$@"
 LAUNCHER
 chmod +x "$HOME/.local/bin/clipvault"
+
+# Install toggle script (used by GNOME Super+V keybinding)
+cp "$PROJECT_ROOT/installation/clipvault-toggle.sh" "$HOME/.local/bin/clipvault-toggle"
+chmod +x "$HOME/.local/bin/clipvault-toggle"
 
 # Make sure ~/.local/bin is in PATH
 if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
@@ -119,6 +124,33 @@ Comment=Clipboard Manager
 AUTOSTART
 
 echo -e "${GREEN}✓ Autostart configured (starts on login)${NC}"
+
+# ── Step 5b: Register Super+V GNOME keybinding ────────────────────────────────
+# GNOME's mutter grabs the Super key before pynput can see it, so we register
+# Super+V as a custom GNOME shortcut that calls our toggle script instead.
+if command -v gsettings &>/dev/null; then
+    TOGGLE_CMD="$HOME/.local/bin/clipvault-toggle"
+    BINDING_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/clipvault/"
+
+    # Read existing custom keybindings list and add ours if not already present
+    EXISTING=$(gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings 2>/dev/null || echo "@as []")
+    if [[ "$EXISTING" != *"clipvault"* ]]; then
+        if [[ "$EXISTING" == "@as []" || "$EXISTING" == "[]" ]]; then
+            UPDATED="['$BINDING_PATH']"
+        else
+            UPDATED=$(echo "$EXISTING" | sed "s|]$|, '$BINDING_PATH']|")
+        fi
+        gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "$UPDATED"
+    fi
+
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:"$BINDING_PATH" name    "ClipVault Toggle"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:"$BINDING_PATH" command "$TOGGLE_CMD"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:"$BINDING_PATH" binding "<Super>v"
+
+    echo -e "${GREEN}✓ Super+V registered as GNOME keybinding${NC}"
+else
+    echo -e "${YELLOW}⚠ gsettings not found — Super+V keybinding skipped${NC}"
+fi
 
 # ── Done ──────────────────────────────────────────────────────────────────────
 echo ""

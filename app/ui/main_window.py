@@ -2,7 +2,7 @@ import base64
 import subprocess
 import sys
 
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QColor, QFont, QPixmap
 from PyQt5.QtWidgets import (
     QApplication, QFrame, QGraphicsDropShadowEffect,
@@ -28,6 +28,8 @@ except ImportError:
 
 
 class ClipVaultWindow(QWidget):
+    _hotkey_activated = pyqtSignal()
+
     def __init__(self, history: HistoryManager):
         super().__init__()
         self.history       = history
@@ -398,17 +400,18 @@ class ClipVaultWindow(QWidget):
     # ── Global hotkey ─────────────────────────────────────────────────────────
 
     def _start_hotkey(self):
-        def on_activate():
-            if self.isVisible():
-                self.hide()
-            else:
-                self._position_window()
-                self.show()
-                self.raise_()
-                self.activateWindow()
-                self.search_box.setFocus()
+        self._hotkey_activated.connect(self._toggle_window)
+        start_global_hotkey(self._hotkey_activated.emit)
 
-        start_global_hotkey(on_activate)
+    def _toggle_window(self):
+        if self.isVisible():
+            self.hide()
+        else:
+            self._position_window()
+            self.show()
+            self.raise_()
+            self.activateWindow()
+            self.search_box.setFocus()
 
     # ── Qt event overrides ────────────────────────────────────────────────────
 
