@@ -1,8 +1,9 @@
-clipvault (1.0.5-1) noble; urgency=medium
+clipvault (1.0.6-1) noble; urgency=medium
 
-  * Initial release.
-  * Windows-style Super+V clipboard manager for Ubuntu.
-  * Supports text and image clipboard history.
-  * GNOME keybinding registration via gsettings.
+  * Fix hover flicker: leaveEvent now checks cursor bounds before hiding buttons
+  * Add click-outside-to-close behaviour
+  * Add app icon and StartupWMClass for app drawer visibility
+  * Reduce lag: skip list refresh when window is hidden
+  * Refresh list on window open so content is always current
 
  -- Jinay Shah <jinayshah0322@gmail.com>  Fri, 27 Mar 2026 00:00:00 +0530

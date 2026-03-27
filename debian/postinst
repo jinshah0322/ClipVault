@@ -10,7 +10,11 @@ exec python3 /usr/share/clipvault/app/main.py "$@"
 LAUNCHER
 chmod +x /usr/bin/clipvault
 
-# Make clipvault-toggle executable
+# Install toggle script as executable
+cp /usr/share/clipvault/clipvault-toggle.sh /usr/bin/clipvault-toggle
 chmod +x /usr/bin/clipvault-toggle
+
+# Update icon cache
+gtk-update-icon-cache -f /usr/share/icons/hicolor/ 2>/dev/null || true
 
 #DEBHELPER#

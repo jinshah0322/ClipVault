@@ -2,7 +2,7 @@ import base64
 import subprocess
 import sys
 
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import Qt, QTimer, QEvent, pyqtSignal
 from PyQt5.QtGui import QColor, QFont, QPixmap
 from PyQt5.QtWidgets import (
     QApplication, QFrame, QGraphicsDropShadowEffect,
@@ -390,11 +390,11 @@ class ClipVaultWindow(QWidget):
         self._watcher.start()
 
     def _on_new_text(self, text):
-        if self.history.add(text, "text"):
+        if self.history.add(text, "text") and self.isVisible():
             self._refresh_list()
 
     def _on_new_image(self, b64):
-        if self.history.add(b64, "image"):
+        if self.history.add(b64, "image") and self.isVisible():
             self._refresh_list()
 
     # ── Global hotkey ─────────────────────────────────────────────────────────
@@ -408,12 +408,18 @@ class ClipVaultWindow(QWidget):
             self.hide()
         else:
             self._position_window()
+            self._refresh_list()
             self.show()
             self.raise_()
             self.activateWindow()
             self.search_box.setFocus()
 
     # ── Qt event overrides ────────────────────────────────────────────────────
+
+    def changeEvent(self, e):
+        if e.type() == QEvent.ActivationChange and not self.isActiveWindow():
+            QTimer.singleShot(150, lambda: self.hide() if not self.isActiveWindow() else None)
+        super().changeEvent(e)
 
     def keyPressEvent(self, e):
         if e.key() == Qt.Key_Escape:

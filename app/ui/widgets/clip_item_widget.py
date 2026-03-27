@@ -1,8 +1,8 @@
 import base64
 import sys
 
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QFont, QPixmap
+from PyQt5.QtCore import Qt, pyqtSignal, QPoint
+from PyQt5.QtGui import QFont, QPixmap, QCursor
 from PyQt5.QtWidgets import QFrame, QHBoxLayout, QLabel, QPushButton, QVBoxLayout
 
 from app.models.clip_item import ClipItem
@@ -148,9 +148,13 @@ class ClipItemWidget(QFrame):
         self._update_btn_visibility(True)
 
     def leaveEvent(self, e):
-        self._hovered = False
-        self._apply_style()
-        self._update_btn_visibility(False)
+        # Only hide buttons if cursor actually left this widget's bounds.
+        # Without this check, moving the mouse onto a child button fires
+        # leaveEvent on the frame, causing buttons to flicker and disappear.
+        if not self.rect().contains(self.mapFromGlobal(QCursor.pos())):
+            self._hovered = False
+            self._apply_style()
+            self._update_btn_visibility(False)
 
     def mousePressEvent(self, e):
         if e.button() == Qt.LeftButton:

@@ -1,2 +1,4 @@
 app usr/share/clipvault/
-installation/clipvault-toggle.sh usr/bin/clipvault-toggle
+installation/clipvault-toggle.sh usr/share/clipvault/
+app/icons/clipvault.svg usr/share/icons/hicolor/scalable/apps/
+debian/clipvault.desktop usr/share/applications/

@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
 
-# Remove the launcher created by postinst
+# Remove launchers created by postinst
 rm -f /usr/bin/clipvault
+rm -f /usr/bin/clipvault-toggle
 
 #DEBHELPER#
