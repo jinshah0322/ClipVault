@@ -1,4 +1,4 @@
-clipvault (1.0.3-1) noble; urgency=medium
+clipvault (1.0.4-1) noble; urgency=medium
 
   * Initial release.
   * Windows-style Super+V clipboard manager for Ubuntu.
