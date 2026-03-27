@@ -1,0 +1,39 @@
+[project]
+name = "clipvault"
+version = "1.0.0"
+description = "Windows-style clipboard manager for Ubuntu"
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["clipboard", "ubuntu", "linux", "utility"]
+
+# PyQt5 must be installed via apt on Ubuntu, not pip:
+#   sudo apt install python3-pyqt5
+dependencies = [
+    "pyperclip>=1.8.0",
+    "pynput>=1.7.0",
+    "Pillow>=9.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-qt>=4.2.0",
+]
+
+[project.scripts]
+clipvault = "app.main:main"
+
+[tool.pytest.ini_options]
+testpaths = ["app/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"

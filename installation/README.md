@@ -39,8 +39,8 @@ The script auto-detects the project root, so it works regardless of where you cl
 # 1. System deps
 sudo apt install python3 python3-pyqt5 python3-pil xdotool xclip
 
-# 2. Python deps
-pip3 install --user pynput pyperclip Pillow
+# 2. Python deps (from pyproject.toml)
+pip install -e ".[dev]"
 
 # 3. Run directly from the project root
 python3 app/main.py
@@ -51,9 +51,8 @@ python3 app/main.py
 ## Uninstall
 
 ```bash
-rm -rf ~/.local/share/clipvault
-rm -f  ~/.local/bin/clipvault
-rm -f  ~/.local/share/applications/clipvault.desktop
-rm -f  ~/.config/autostart/clipvault.desktop
-rm -f  ~/.clipvault_history.json   # optional — removes saved history
+chmod +x installation/uninstall.sh
+./installation/uninstall.sh
 ```
+
+The script removes all installed files and optionally deletes saved clipboard history.

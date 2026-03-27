@@ -67,6 +67,13 @@ clipvault
 
 See [installation/README.md](installation/README.md) for the full installation guide and manual install instructions.
 
+To uninstall:
+
+```bash
+chmod +x installation/uninstall.sh
+./installation/uninstall.sh
+```
+
 ---
 
 ## Running without installing
