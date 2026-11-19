@@ -54,6 +54,7 @@ def main():
     history = HistoryManager()
     window  = ClipVaultWindow(history)
     tray    = TrayIcon(window, app)   # noqa: F841 — kept alive by reference
+    app.aboutToQuit.connect(window.shutdown)
 
     # SIGUSR1 → toggle window (sent by the GNOME custom keybinding toggle script)
     signal.signal(signal.SIGUSR1, lambda *_: window._hotkey_activated.emit())

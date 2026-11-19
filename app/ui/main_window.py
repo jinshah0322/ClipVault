@@ -384,7 +384,9 @@ class ClipVaultWindow(QWidget):
     # ── Clipboard watcher ─────────────────────────────────────────────────────
 
     def _start_watcher(self):
-        self._watcher = ClipboardWatcher()
+        # QClipboard / QImage are GUI objects: the watcher must live in this
+        # thread.  It uses a QTimer instead of a polling QThread.
+        self._watcher = ClipboardWatcher(self)
         self._watcher.new_text.connect(self._on_new_text)
         self._watcher.new_image.connect(self._on_new_image)
         self._watcher.start()
@@ -396,6 +398,10 @@ class ClipVaultWindow(QWidget):
     def _on_new_image(self, b64):
         if self.history.add(b64, "image") and self.isVisible():
             self._refresh_list()
+
+    def shutdown(self):
+        """Stop the clipboard timer before the application quits."""
+        self._watcher.stop()
 
     # ── Global hotkey ─────────────────────────────────────────────────────────
 
